@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-# CRITICAL WINDOWS FIX: Prevent DuplexClosed/Proactor errors
+# CRITICAL WINDOWS FIX
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
@@ -15,19 +15,16 @@ import logging
 from datetime import datetime
 from dotenv import load_dotenv
 
-# Fix for SSL
 os.environ['SSL_CERT_FILE'] = certifi.where()
 
 from livekit import agents, api
 from livekit.agents import AgentSession, Agent
 from livekit.plugins import openai, silero, deepgram
 from livekit.agents import llm
+from livekit.protocol.room import DeleteRoomRequest
 from typing import Annotated
 
-# Load env
 load_dotenv(".env")
-
-# Basic logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("outbound-agent")
 
@@ -39,45 +36,40 @@ class TransferFunctions(llm.ToolContext):
         self.ctx = ctx
         self.phone_number = phone_number
         self.done_event = asyncio.Event()
+        self.user_interested = False  # Track interest
 
     def _signal_done(self):
-        """Idempotent signaling helper."""
         if not self.done_event.is_set():
             self.done_event.set()
 
     @llm.function_tool(description="Save lead information when user is interested")
-    async def save_lead(self, 
-                  status: Annotated[str, "The result of the interaction (e.g. 'interested')"] = "interested"):
+    async def save_lead(self, status: Annotated[str, "The result"] = "interested"):
         """Record the phone number, date and time of the lead."""
         phone = self.phone_number or "Unknown"
         now = datetime.now()
-        date_str = now.strftime("%Y-%m-%d")
-        time_str = now.strftime("%H:%M:%S")
         
         try:
             file_path = "leads.csv"
             file_exists = os.path.isfile(file_path)
-            
             def write_csv():
                 with open(file_path, mode='a', newline='', encoding='utf-8') as f:
                     writer = csv.writer(f)
-                    if not file_exists:
-                        writer.writerow(["Phone Number", "Date", "Time"])
-                    writer.writerow([phone, date_str, time_str])
+                    if not file_exists: writer.writerow(["Phone Number", "Date", "Time"])
+                    writer.writerow([phone, now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")])
             
             await asyncio.to_thread(write_csv)
-            
-            print(f"DEBUG: Lead saved for {phone}. Status: {status}", flush=True)
+            print(f"DEBUG: Lead saved for {phone}.", flush=True)
+            self.user_interested = True  # Mark as interested
             self._signal_done()
-            return {"status": "success", "message": "Lead saved successfully."}
+            return {"status": "success", "message": "Lead saved."}
         except Exception as e:
-            print(f"DEBUG ERROR saving lead: {e}", flush=True)
             return {"status": "error", "message": str(e)}
 
     @llm.function_tool(description="End the call immediately")
-    async def end_call(self, reason: Annotated[str, "The reason for ending the call"] = "completed"):
+    async def end_call(self, reason: Annotated[str, "Reason"] = "completed"):
         """Signal that the call should end."""
-        print(f"DEBUG: end_call tool called. Reason: {reason}", flush=True)
+        print(f"DEBUG: end_call tool called.", flush=True)
+        self.user_interested = False # Mark as NOT interested
         self._signal_done()
         return {"status": "ending", "reason": reason}
 
@@ -88,12 +80,10 @@ async def entrypoint(ctx: agents.JobContext):
     try:
         if ctx.job.metadata:
             phone_number = json.loads(ctx.job.metadata).get("phone_number")
-            print(f"DEBUG: Target phone: {phone_number}", flush=True)
     except: pass
 
     fnc_ctx = TransferFunctions(ctx, phone_number)
 
-    # Standardizing on Deepgram + Groq
     session = AgentSession(
         vad=silero.VAD.load(),
         stt=deepgram.STT(model="nova-2-phonecall", language="en"), 
@@ -105,15 +95,11 @@ async def entrypoint(ctx: agents.JobContext):
         tts=deepgram.TTS(model="aura-asteria-en"),
     )
 
-    @session.on("transcript_finished")
-    def on_transcript(transcript: agents.stt.SpeechEvent):
-        if transcript.alternatives:
-            print(f"DEBUG STT: {transcript.alternatives[0].text}", flush=True)
-
-    print("DEBUG: Starting session engine...", flush=True)
     agent = Agent(instructions=config.SYSTEM_PROMPT, tools=list(fnc_ctx.function_tools.values()))
-    await session.start(room=ctx.room, agent=agent)
-    print("DEBUG: Session live. Waiting for connection...", flush=True)
+    
+    try:
+        await session.start(room=ctx.room, agent=agent)
+    except Exception: pass
 
     if phone_number:
         print(f"DEBUG: Dialing SIP to {phone_number}...", flush=True)
@@ -127,53 +113,45 @@ async def entrypoint(ctx: agents.JobContext):
                     wait_until_answered=True,
                 )
             )
-            print("DEBUG: Connected! Waiting for audio stream...", flush=True)
+            
             await asyncio.sleep(2)
             
-            # GREETING BARRIER
-            print(f"DEBUG: Speaking greeting: {config.INITIAL_GREETING}", flush=True)
             greeting_started = asyncio.Event()
             await session.say(config.INITIAL_GREETING, allow_interruptions=True)
             greeting_started.set()
             
-            # DETERMINISTIC LIFECYCLE MONITOR
-            # Wait for both greeting to start AND the LLM completion signal
             await greeting_started.wait()
             await fnc_ctx.done_event.wait()
             
-            print(f"\n{'='*50}", flush=True)
-            print(f"!!! LIFECYCLE SIGNAL RECEIVED: Ending Call !!!", flush=True)
-            print(f"{'='*50}\n", flush=True)
-            
-            # The "Golden Sequence"
+            # --- DYNAMIC MESSAGE LOGIC ---
             print("DEBUG: Speaking final goodbye...", flush=True)
-            await session.say(
-                "Thank you. Our team will reach you soon. Goodbye!", 
-                allow_interruptions=False
-            )
+            if fnc_ctx.user_interested:
+                final_msg = config.MESSAGE_INTERESTED
+            else:
+                final_msg = config.MESSAGE_NOT_INTERESTED
             
-            print("DEBUG: Flushing audio buffer (1.5s)...", flush=True)
+            try:
+                await session.say(final_msg, allow_interruptions=False)
+            except: pass
+            # -----------------------------
+            
             await asyncio.sleep(1.5)
+
+            try:
+                request = DeleteRoomRequest(room=ctx.room.name)
+                await ctx.api.room.delete_room(request)
+            except Exception as e:
+                print(f"DEBUG: Error deleting room: {e}", flush=True)
             
-            print("--- CLOSING SESSION ---", flush=True)
             await session.aclose()
             return 
             
-        except Exception as e:
-            logger.exception("Dial/session error")
-            try:
-                await session.aclose()
-            except Exception:
-                pass
+        except Exception:
+            try: await session.aclose()
+            except: pass
     else:
-        print("DEBUG: No phone number. Waiting for fallback...", flush=True)
         await session.say(config.fallback_greeting, allow_interruptions=True)
 
 if __name__ == "__main__":
     from livekit.agents import cli
-    cli.run_app(
-        agents.WorkerOptions(
-            entrypoint_fnc=entrypoint,
-            agent_name="outbound-agent", 
-        )
-    )
+    cli.run_app(agents.WorkerOptions(entrypoint_fnc=entrypoint, agent_name="outbound-agent"))
