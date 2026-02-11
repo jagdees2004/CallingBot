@@ -118,4 +118,4 @@ Wait until you see Worker started in the logs. This indicates the agent is conne
 Open a new terminal window and run the dispatch script:
 
 powershell
-.\venv\Scripts\python make_call.py --to +917735525684
+.\venv\Scripts\python make_call.py --to +91XXXXXXXXXX
