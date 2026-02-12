@@ -111,7 +111,7 @@ python make_call.py --to +91XXXXXXXXXX
 The agent must be running in the background to handle the call logic.
 
 powershell
-.\venv\Scripts\python agent_v11_perfect.py dev
+.\venv\Scripts\python agent.py dev
 Wait until you see Worker started in the logs. This indicates the agent is connected to LiveKit and ready.
 
 2. Make an Outbound Call (Terminal 2)
