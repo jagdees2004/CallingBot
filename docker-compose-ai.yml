@@ -1,0 +1,18 @@
+services:
+  whisper:
+    # Changed to CPU version for stability on Windows
+    image: fedirz/faster-whisper-server:latest-cpu
+    ports:
+      - "8000:8000"
+    environment:
+      - WHISPER_MODEL=small_en
+    volumes:
+      - ./whisper-cache:/root/.cache/huggingface
+
+  kokoro:
+    # FIX: Added 'ghcr.io/' prefix and specified '-cpu' tag
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    ports:
+      - "8880:8880"
+    volumes:
+      - ./kokoro-data:/app/api/src/kokoro-data

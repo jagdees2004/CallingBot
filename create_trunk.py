@@ -1,41 +1,27 @@
 import asyncio
 import os
 import certifi
-
-# Fix SSL on macOS
-os.environ['SSL_CERT_FILE'] = certifi.where()
-
 from dotenv import load_dotenv
 from livekit import api
 from livekit.protocol.sip import CreateSIPOutboundTrunkRequest, SIPOutboundTrunkInfo
 
-load_dotenv(".env")
+os.environ['SSL_CERT_FILE'] = certifi.where()
+load_dotenv()
 
 async def main():
-    print("Connecting to LiveKit API...")
-    url = os.getenv("LIVEKIT_URL")
-    key = os.getenv("LIVEKIT_API_KEY")
-    secret = os.getenv("LIVEKIT_API_SECRET")
-
-    # SIP Credentials
+    lkapi = api.LiveKitAPI()
+    
     sip_address = os.getenv("VOBIZ_SIP_DOMAIN")
     username = os.getenv("VOBIZ_USERNAME")
     password = os.getenv("VOBIZ_PASSWORD")
     number = os.getenv("VOBIZ_OUTBOUND_NUMBER")
 
-    if not (url and key and secret):
-        print("Error: Missing LiveKit credentials")
-        return
-
     if not (sip_address and username and password):
-        print("Error: Missing SIP credentials (VOBIZ_SIP_DOMAIN, VOBIZ_USERNAME, VOBIZ_PASSWORD)")
+        print("❌ Missing VOBIZ_* credentials in .env")
         return
-
-    lkapi = api.LiveKitAPI(url=url, api_key=key, api_secret=secret)
 
     try:
-        print(f"Creating SIP Trunk for {sip_address}...")
-        
+        print(f"Creating trunk for {sip_address}...")
         trunk_info = SIPOutboundTrunkInfo(
             name="Vobiz Trunk",
             address=sip_address,
@@ -43,18 +29,11 @@ async def main():
             auth_password=password,
             numbers=[number] if number else [],
         )
-
-        request = CreateSIPOutboundTrunkRequest(trunk=trunk_info)
-        
-        trunk = await lkapi.sip.create_outbound_trunk(request)
-        
-        print("\n✅ SIP Trunk Created Successfully!")
-        print(f"Trunk ID: {trunk.sip_trunk_id}")
-        print(f"Name: {trunk.name}")
-        print(f"Numbers: {trunk.numbers}")
-        
+        trunk = await lkapi.sip.create_outbound_trunk(CreateSIPOutboundTrunkRequest(trunk=trunk_info))
+        print(f"✅ Trunk Created! ID: {trunk.sip_trunk_id}")
+        print("👉 Add this ID to .env as VOBIZ_SIP_TRUNK_ID")
     except Exception as e:
-        print(f"\n❌ Error creating trunk: {e}")
+        print(f"❌ Error: {e}")
     finally:
         await lkapi.aclose()
 

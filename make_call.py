@@ -1,74 +1,49 @@
 import os
 import certifi
-
-# Fix for macOS SSL Certificate errors - MUST be before other imports
-os.environ['SSL_CERT_FILE'] = certifi.where()
-
 import argparse
 import asyncio
 import random
 import json
-import logging
 from dotenv import load_dotenv
 from livekit import api
 
-# Load environment variables
-load_dotenv(".env")
+# SSL Fix
+os.environ['SSL_CERT_FILE'] = certifi.where()
+load_dotenv()
 
 async def main():
-    parser = argparse.ArgumentParser(description="Make an outbound call via LiveKit Agent.")
-    parser.add_argument("--to", required=True, help="The phone number to call (e.g., +91...)")
+    parser = argparse.ArgumentParser(description="Make an outbound call.")
+    parser.add_argument("--to", required=True, help="Phone number (e.g., +91...)")
     args = parser.parse_args()
 
-    # 1. Validation
     phone_number = args.to.strip()
-    if not phone_number.startswith("+"):
-        print("Error: Phone number must start with '+' and country code.")
-        return
-
-    if len(phone_number) < 8:
-        print(f"Error: Phone number '{phone_number}' looks too short.")
-        return
-
+    
     url = os.getenv("LIVEKIT_URL")
     api_key = os.getenv("LIVEKIT_API_KEY")
     api_secret = os.getenv("LIVEKIT_API_SECRET")
 
     if not (url and api_key and api_secret):
-        print("Error: LiveKit credentials missing in .env.local")
+        print("❌ Error: Missing LiveKit credentials in .env")
         return
 
-    # 2. Setup API Client
     lk_api = api.LiveKitAPI(url=url, api_key=api_key, api_secret=api_secret)
+    room_name = f"call-{random.randint(10000, 99999)}"
 
-    # 3. Create a unique room for this call
-    # We use a random suffix to ensure room names are unique
-    room_name = f"call-{phone_number.replace('+', '')}-{random.randint(1000, 9999)}"
-
-    print(f"Initating call to {phone_number}...")
-    print(f"Session Room: {room_name}")
+    print(f"📞 Calling {phone_number} (Room: {room_name})")
 
     try:
-        # 4. Dispatch the Agent
-        # We explicitly tell LiveKit to send the 'outbound-caller' agent to this room.
-        # We pass the phone number in the 'metadata' field so the agent knows who to dial.
-        dispatch_request = api.CreateAgentDispatchRequest(
-            agent_name="outbound-agent", # Matches the standardized name in agent scripts
+        # Dispatch 'outbound-agent'
+        dispatch_req = api.CreateAgentDispatchRequest(
+            agent_name="outbound-agent",
             room=room_name,
             metadata=json.dumps({"phone_number": phone_number})
         )
         
-        dispatch = await lk_api.agent_dispatch.create_dispatch(dispatch_request)
-
-        print("\n✅ Call Dispatched Successfully!")
-        print(f"Dispatch ID: {dispatch.id}")
-        print("-" * 40)
-        print("The agent is now joining the room and will dial the number.")
-        print("Check your agent terminal for logs.")
+        dispatch = await lk_api.agent_dispatch.create_dispatch(dispatch_req)
+        print(f"✅ Dispatch sent! ID: {dispatch.id}")
         
     except Exception as e:
-        print(f"\n❌ Error dispatching call: {e}")
-    
+        print(f"❌ Error: {e}")
     finally:
         await lk_api.aclose()
 

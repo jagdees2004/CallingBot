@@ -1,0 +1,197 @@
+2026-02-13 14:02:11,437 INFO livekit.agents: starting worker
+2026-02-13 14:02:11,440 INFO livekit.agents: HTTP server listening on :8081
+2026-02-13 14:02:11,444 INFO livekit.agents: initializing job runner
+2026-02-13 14:02:11,444 INFO livekit.agents: initializing job runner
+2026-02-13 14:02:11,445 INFO livekit.agents: initializing job runner
+2026-02-13 14:02:11,445 INFO livekit.agents: initializing job runner
+2026-02-13 14:02:11,448 INFO livekit.agents: job runner initialized
+2026-02-13 14:02:11,449 INFO livekit.agents: job runner initialized
+2026-02-13 14:02:11,449 INFO livekit.agents: job runner initialized
+2026-02-13 14:02:11,449 INFO livekit.agents: job runner initialized
+2026-02-13 14:02:11,731 INFO livekit.agents: registered worker
+2026-02-13 14:02:19,907 INFO livekit.agents: received job request
+2026-02-13 14:02:19,963 INFO outbound-agent: --- Entrypoint started for room call-917735525684-5343 ---
+2026-02-13 14:02:20,030 INFO livekit.agents: initializing job runner
+2026-02-13 14:02:20,031 INFO livekit.agents: job runner initialized
+2026-02-13 14:02:20,584 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 124, in entrypoint
+    if config.STT_PROVIDER == "groq":
+       ^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'config' has no attribute 'STT_PROVIDER'
+2026-02-13 14:03:18,576 INFO livekit.agents: starting worker
+2026-02-13 14:03:18,578 INFO livekit.agents: HTTP server listening on :8081
+2026-02-13 14:03:18,610 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:18,610 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:18,610 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:18,611 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:18,612 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:18,613 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:18,614 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:18,615 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:18,870 INFO livekit.agents: registered worker
+2026-02-13 14:03:26,950 INFO livekit.agents: received job request
+2026-02-13 14:03:27,014 INFO outbound-agent: --- Entrypoint started for room call-917735525684-6615 ---
+2026-02-13 14:03:27,019 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:27,020 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:28,519 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+    agent_tools = OutboundAgentTools(phone_number=phone_number)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 14:03:31,531 INFO livekit.agents: received job request
+2026-02-13 14:03:31,584 INFO outbound-agent: --- Entrypoint started for room call-917735525684-5343 ---
+2026-02-13 14:03:31,587 INFO livekit.agents: initializing job runner
+2026-02-13 14:03:31,589 INFO livekit.agents: job runner initialized
+2026-02-13 14:03:33,081 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+    agent_tools = OutboundAgentTools(phone_number=phone_number)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 14:05:41,846 INFO livekit.agents: starting worker
+2026-02-13 14:05:41,848 INFO livekit.agents: HTTP server listening on :8081
+2026-02-13 14:05:41,852 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:41,853 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:41,853 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:41,853 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:41,855 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:41,857 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:41,858 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:41,858 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:42,139 INFO livekit.agents: registered worker
+2026-02-13 14:05:50,265 INFO livekit.agents: received job request
+2026-02-13 14:05:50,325 INFO outbound-agent: --- Entrypoint started for room call-917735525684-5671 ---
+2026-02-13 14:05:50,344 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:50,345 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:51,820 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+    agent_tools = OutboundAgentTools(phone_number=phone_number)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 14:05:53,116 INFO livekit.agents: received job request
+2026-02-13 14:05:53,166 INFO outbound-agent: --- Entrypoint started for room call-917735525684-6615 ---
+2026-02-13 14:05:53,170 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:53,172 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:54,627 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+    agent_tools = OutboundAgentTools(phone_number=phone_number)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 14:05:55,196 INFO livekit.agents: received job request
+2026-02-13 14:05:55,247 INFO outbound-agent: --- Entrypoint started for room call-917735525684-5343 ---
+2026-02-13 14:05:55,288 INFO livekit.agents: initializing job runner
+2026-02-13 14:05:55,290 INFO livekit.agents: job runner initialized
+2026-02-13 14:05:56,620 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+    agent_tools = OutboundAgentTools(phone_number=phone_number)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 14:54:06,447 INFO livekit.agents: received job request
+2026-02-13 14:54:06,537 INFO outbound-agent: --- Entrypoint started for room call-42116 ---
+2026-02-13 14:54:06,592 INFO livekit.agents: initializing job runner
+2026-02-13 14:54:06,596 INFO livekit.agents: job runner initialized
+2026-02-13 14:54:07,973 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    async def save_lead(self):
+        ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 15:24:54,524 INFO livekit.agents: received job request
+2026-02-13 15:24:54,596 INFO outbound-agent: --- Entrypoint started for room call-54682 ---
+2026-02-13 15:24:54,644 INFO livekit.agents: initializing job runner
+2026-02-13 15:24:54,645 INFO livekit.agents: job runner initialized
+2026-02-13 15:24:56,090 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    await self.session.say(config.MESSAGE_NOT_INTERESTED, allow_interruptions=False)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 15:25:33,228 INFO livekit.agents: received job request
+2026-02-13 15:25:33,279 INFO outbound-agent: --- Entrypoint started for room call-91861 ---
+2026-02-13 15:25:33,282 INFO livekit.agents: initializing job runner
+2026-02-13 15:25:33,283 INFO livekit.agents: job runner initialized
+2026-02-13 15:25:34,894 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    await self.session.say(config.MESSAGE_NOT_INTERESTED, allow_interruptions=False)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
+2026-02-13 15:27:41,908 INFO livekit.agents: received job request
+2026-02-13 15:27:41,962 INFO outbound-agent: --- Entrypoint started for room call-30264 ---
+2026-02-13 15:27:42,028 INFO livekit.agents: initializing job runner
+2026-02-13 15:27:42,030 INFO livekit.agents: job runner initialized
+2026-02-13 15:27:43,377 ERROR livekit.agents: unhandled exception while running the job task
+Traceback (most recent call last):
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\opentelemetry\util\_decorator.py", line 71, in async_wrapper
+    return await func(*args, **kwargs)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\venv\Lib\site-packages\livekit\agents\ipc\job_proc_lazy_main.py", line 292, in _traceable_entrypoint
+    await self._job_entrypoint_fnc(job_ctx)
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 172, in entrypoint
+  File "C:\Users\ASUS\Downloads\CallingBot\CallingBot\agent.py", line 45, in __init__
+    await self.session.say(config.MESSAGE_NOT_INTERESTED, allow_interruptions=False)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ToolContext.__init__() missing 1 required positional argument: 'tools'
