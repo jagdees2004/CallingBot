@@ -7,6 +7,8 @@ import logging
 import aiohttp
 import io
 import wave
+import csv
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Windows fix
@@ -31,7 +33,7 @@ logger = logging.getLogger("voice-agent")
 async def entrypoint(ctx: agents.JobContext):
 
     await ctx.connect()
-    logger.info(f"Connected to room: {ctx.room.name}")
+    logger.info(f"Entrypoint: {ctx.room.name}")
 
     phone_number = None
     try:
@@ -43,6 +45,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     vad_plugin = silero.VAD.load()
 
+    # 🔹 Compatible with LiveKit 1.4.1 (no request_id)
     tts = openai.TTS(
         base_url=config.KOKORO_URL,
         api_key="dummy",
@@ -53,39 +56,48 @@ async def entrypoint(ctx: agents.JobContext):
     done_event = asyncio.Event()
     sip_identity = None
 
+    # ================= SAVE LEAD ================= #
+
+    def save_lead(number: str):
+        try:
+            file_exists = os.path.isfile("lead.csv")
+
+            with open("lead.csv", "a", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+
+                if not file_exists:
+                    writer.writerow(["Phone Number", "Date", "Time"])
+
+                now = datetime.now()
+                writer.writerow([
+                    number,
+                    now.strftime("%Y-%m-%d"),
+                    now.strftime("%H:%M:%S")
+                ])
+
+            logger.info("Lead saved successfully.")
+
+        except Exception as e:
+            logger.error(f"Error saving lead: {e}")
+
     # ================= HANGUP FUNCTION ================= #
 
     async def hangup_call():
         try:
             logger.info("Initiating hangup...")
-            await asyncio.sleep(0.5)  # let TTS finish
+            await asyncio.sleep(0.5)
 
-            # 1️⃣ Remove SIP participant (PRIMARY method)
             if sip_identity:
-                try:
-                    await ctx.api.room.remove_participant(
-                        api.RoomParticipantIdentity(
-                            room=ctx.room.name,
-                            identity=sip_identity,
-                        )
-                    )
-                    logger.info("SIP participant removed.")
-                except Exception as e:
-                    logger.warning(f"Remove participant failed: {e}")
-
-            # 2️⃣ Backup: delete entire room
-            try:
-                await ctx.api.room.delete_room(
-                    api.DeleteRoomRequest(
+                await ctx.api.room.remove_participant(
+                    api.RoomParticipantIdentity(
                         room=ctx.room.name,
+                        identity=sip_identity,
                     )
                 )
-                logger.info("Room deleted successfully.")
-            except Exception as e:
-                logger.warning(f"Delete room failed: {e}")
+                logger.info("SIP participant removed.")
 
         except Exception as e:
-            logger.error(f"Hangup error: {e}")
+            logger.warning(f"Hangup issue: {e}")
 
     # ================= TTS FUNCTION ================= #
 
@@ -126,18 +138,14 @@ async def entrypoint(ctx: agents.JobContext):
             url = f"{config.WHISPER_URL}/audio/transcriptions"
 
             data = aiohttp.FormData()
-            data.add_field(
-                "file",
-                wav_data,
-                filename="audio.wav",
-                content_type="audio/wav",
-            )
+            data.add_field("file", wav_data,
+                           filename="audio.wav",
+                           content_type="audio/wav")
             data.add_field("model", "whisper-1")
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, data=data) as resp:
                     if resp.status != 200:
-                        logger.error("Whisper failed")
                         return ""
                     result = await resp.json()
                     return result.get("text", "").lower()
@@ -149,11 +157,7 @@ async def entrypoint(ctx: agents.JobContext):
     # ================= AUDIO PROCESSING ================= #
 
     @ctx.room.on("track_subscribed")
-    def on_track_subscribed(
-        track: rtc.Track,
-        publication: rtc.RemoteTrackPublication,
-        participant: rtc.RemoteParticipant,
-    ):
+    def on_track_subscribed(track, publication, participant):
         if track.kind == rtc.TrackKind.KIND_AUDIO:
             asyncio.create_task(process_audio(track))
 
@@ -175,7 +179,6 @@ async def entrypoint(ctx: agents.JobContext):
                     speech_buffer = []
 
                 elif event.type == vad.VADEventType.END_OF_SPEECH:
-                    logger.info("End of speech. Processing...")
 
                     if not speech_buffer:
                         continue
@@ -186,7 +189,6 @@ async def entrypoint(ctx: agents.JobContext):
                     )
 
                     speech_buffer = []
-
                     text = await transcribe_audio(raw_pcm)
 
                     if not text:
@@ -194,20 +196,21 @@ async def entrypoint(ctx: agents.JobContext):
 
                     logger.info(f"User: {text}")
 
-                    if any(
-                        w in text
-                        for w in ["yes", "yeah", "sure", "interested"]
-                    ):
+                    # YES → Save Lead
+                    if any(w in text for w in
+                           ["yes", "yeah", "sure", "interested"]):
+
+                        save_lead(phone_number)
                         await say(config.MESSAGE_INTERESTED)
                         await hangup_call()
                         done_event.set()
                         listening = False
                         break
 
-                    elif any(
-                        w in text
-                        for w in ["no", "nope", "bye"]
-                    ):
+                    # NO → Do NOT Save
+                    elif any(w in text for w in
+                             ["no", "nope", "bye"]):
+
                         await say(config.MESSAGE_NOT_INTERESTED)
                         await hangup_call()
                         done_event.set()
@@ -219,17 +222,31 @@ async def entrypoint(ctx: agents.JobContext):
         async for frame_event in audio_stream:
             if not listening:
                 break
-
             speech_buffer.append(frame_event.frame)
             vad_stream.push_frame(frame_event.frame)
 
+       
+            pass
+        # Stop VAD stream properly
+        try:
+            await vad_stream.aclose()
+        except Exception:
+            pass
+
+        # Cancel listener task cleanly
         vad_task.cancel()
+        try:
+            await vad_task
+        except asyncio.CancelledError:
+            pass
 
     # ================= SIP CALL ================= #
 
     if phone_number:
         try:
             sip_identity = f"sip_{phone_number}"
+
+            logger.info(f"Dialing {phone_number}...")
 
             await ctx.api.sip.create_sip_participant(
                 api.CreateSIPParticipantRequest(
@@ -252,6 +269,7 @@ async def entrypoint(ctx: agents.JobContext):
         except Exception as e:
             logger.error(f"Call Error: {e}")
 
+    await asyncio.sleep(0.2)
     logger.info("Shutting down agent...")
     ctx.shutdown()
 
