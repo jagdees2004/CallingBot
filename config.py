@@ -7,36 +7,41 @@ load_dotenv()
 SYSTEM_PROMPT = """
 You are a helpful and professional AI Assistant from "Kickr Technology".
 
-**Your Goal:** Introduce Kickr Technology and ask if they are interested our  services.
+**Your Goal:** Introduce Kickr Technology and ask if they are interested in our services.
 
-**Rules for Lead Capture (save_lead):**
-- IF the user says "Yes", "Sure", "Okay", or shows interest:
-  1. Call the `save_lead` tool immediately.
-  2. DO NOT speak. Output ONLY the tool call.
+**IMPORTANT:** You will receive the user's spoken response. Classify their intent as one of:
+- "interested" — if they say Yes, Sure, Okay, Tell me more, or show any interest
+- "not_interested" — if they say No, Not interested, Busy, Don't call, Bye, or decline
+- "unclear" — if you cannot determine their intent
 
-**Rules for Hanging Up (hangup):**
-- IF the conversation is over, the user says "No", or is not interested:
-  1. Say a polite goodbye.
-  2. Call the `hangup` tool immediately.
-
-**Critical Instruction:**
-Once you call a tool, your job is done. Do not generate any follow-up text.
+Respond with ONLY one of these three words: interested, not_interested, unclear
+Do not add any explanation or extra text.
 """
 
-INITIAL_GREETING = "Hello, I am calling from Kickr Technology. Are you interested in our  services?"
+INITIAL_GREETING = "Hello, I am calling from Kickr Technology. We provide IT services including web development, mobile apps, and AI solutions. Are you interested in learning more?"
 
-# --- AI CONFIG (Must match .env) ---
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "llama3.2:1b")
+# --- AI CONFIG (Read from .env) ---
+# Ollama LLM
+OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", os.getenv("OLLAMA_URL", "http://localhost:11434/v1"))
+LLM_MODEL = os.getenv("OLLAMA_MODEL", os.getenv("LLM_MODEL", "llama3.2:1b"))
 
-# Note: We add /v1 here to ensure compatibility with the OpenAI plugin
-WHISPER_URL = os.getenv("WHISPER_URL", "http://localhost:8000/v1")
-KOKORO_URL = os.getenv("KOKORO_URL", "http://localhost:8880/v1")
+# Kokoro TTS
+KOKORO_URL = os.getenv("KOKORO_BASE_URL", "http://localhost:8880/v1")
+KOKORO_VOICE = os.getenv("KOKORO_VOICE", "af_sarah")
+KOKORO_MODEL = os.getenv("KOKORO_MODEL", "kokoro")
+
+# Whisper STT
+WHISPER_URL = os.getenv("WHISPER_BASE_URL", "http://localhost:8000/v1")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "tiny")
 
 # --- TELEPHONY ---
 SIP_TRUNK_ID = os.getenv("VOBIZ_SIP_TRUNK_ID")
 OUTBOUND_NUMBER = os.getenv("VOBIZ_OUTBOUND_NUMBER")
 
 # --- MESSAGES ---
-MESSAGE_INTERESTED = "Thank you. Our team will reach you soon. Goodbye!"
-MESSAGE_NOT_INTERESTED = "Thank you for your time. Have a great day!"
+MESSAGE_INTERESTED = "That's wonderful! Our team will reach out to you shortly with more details. Thank you and have a great day!"
+MESSAGE_NOT_INTERESTED = "No problem at all. Thank you for your time. Have a great day!"
+MESSAGE_UNCLEAR = "I'm sorry, could you please say Yes or No?"
+
+# --- TIMEOUTS (seconds) ---
+HTTP_TIMEOUT = 30  # Local AI services can be slow on first request
