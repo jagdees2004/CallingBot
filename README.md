@@ -15,7 +15,7 @@ An AI-powered outbound calling agent built with **LiveKit**, using **fully local
 - **Smart Intent Detection** — Keyword matching + LLM fallback for ambiguous responses
 - **Outbound SIP Calls** — Automated calling via Vobiz SIP trunk
 - **Lead Capture** — Saves interested leads to `lead.csv`
-- **Windows Compatible** — Tested on Windows with ProactorEventLoop fix
+
 
 ---
 
