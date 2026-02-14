@@ -39,7 +39,7 @@ SIP_TRUNK_ID = os.getenv("VOBIZ_SIP_TRUNK_ID")
 OUTBOUND_NUMBER = os.getenv("VOBIZ_OUTBOUND_NUMBER")
 
 # --- MESSAGES ---
-MESSAGE_INTERESTED = "That's wonderful! Our team will reach out to you shortly with more details. Thank you and have a great day!"
+MESSAGE_INTERESTED = "That's wonderful! Our team will reach out to you shortly with more details. Thank you!"
 MESSAGE_NOT_INTERESTED = "No problem at all. Thank you for your time. Have a great day!"
 MESSAGE_UNCLEAR = "I'm sorry, could you please say Yes or No?"
 
